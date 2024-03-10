@@ -1,0 +1,1 @@
+An AWS Lambda function which receives data from a AWS SQS queue and puts it in a database.
