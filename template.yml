@@ -11,12 +11,12 @@ Parameters:
     Description: The ID of the security group in the VPC
     Type: String
     MinLength: 1
-    MaxLength: 30
+    MaxLength: 300
   VPCsubnetIDlist:
     Description: A comma-separated list (in one string) of subnet IDs in the VPC
     Type: String
     MinLength: 1
-    MaxLength: 30
+    MaxLength: 300
 
 Resources:
 
