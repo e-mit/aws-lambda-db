@@ -11,6 +11,8 @@ ID_FILE_NAME="id.txt"
 
 ############################################################
 
+EXTRA_PARAM_OVERRIDES=$2
+
 if [[ -z $NAME_PREFIX ]]; then
     echo ERROR: Please set NAME_PREFIX
     exit 1
@@ -35,7 +37,7 @@ _get_id() {
 		          | od -An -tx1 | tr -d ' \t\n')
         echo $RAND_ID > $ID_FILE_NAME
         _make_names
-        echo "Creating $STACK_NAME"
+        echo "Creating $STACK_NAME with Lambda $FUNCTION_NAME"
     else
         RAND_ID=$(cat $ID_FILE_NAME)
         _make_names
@@ -44,7 +46,7 @@ _get_id() {
 }
 
 _delete_files() {
-    rm -rf package function/__pycache__
+    rm -rf package function/__pycache__ venv
     rm -f function/*.pyc out.yml *.zip
 }
 
@@ -82,6 +84,7 @@ except:
 
 _prepare_packages() {
     _delete_files
+    /usr/bin/python3 -m venv venv
     source venv/bin/activate
     pip3 install --target package/python -r requirements.txt &> /dev/null
 }
@@ -97,16 +100,15 @@ stack() {
     --s3-bucket $BUCKET_NAME \
     --output-template-file out.yml &> /dev/null
 
+    echo "Using: --parameter-overrides functionName=$FUNCTION_NAME $EXTRA_PARAM_OVERRIDES"
     aws cloudformation deploy \
     --template-file out.yml \
     --stack-name $STACK_NAME \
     --capabilities CAPABILITY_NAMED_IAM \
-    --parameter-overrides functionName=$FUNCTION_NAME $2
+    --parameter-overrides functionName=$FUNCTION_NAME $EXTRA_PARAM_OVERRIDES
 
     echo Deleting the temporary S3 bucket
     aws s3 rb --force s3://$BUCKET_NAME
-
-    echo Created Lambda $FUNCTION_NAME
 }
 
 
