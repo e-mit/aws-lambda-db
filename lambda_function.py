@@ -28,7 +28,7 @@ def lambda_handler(event, context):
 
     for record in event['Records']:
         body = json.loads(record['body'])
-        request_data = body['responsePayload']
+        request_data = json.loads(body['responsePayload'])
         logger.info(f"Request_data: {request_data}")
         logger.info("Intensity: "
                     f"{request_data['data'][0]['intensity']['actual']}")
