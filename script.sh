@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source venv/bin/activate
+
 rm -rf package
 rm -f *.zip
 
