@@ -26,12 +26,16 @@ def lambda_handler(event, context):
     logger.info(f'Event received at time: {timestamp}')
     logger.info(f'Event data: {event}')
 
-    for record in event['Records']:
-        body = json.loads(record['body'])
-        request_data = json.loads(body['responsePayload'])
-        logger.info(f"Request_data: {request_data}")
-        logger.info("Intensity: "
-                    f"{request_data['data'][0]['intensity']['actual']}")
+    try:
+        for record in event['Records']:
+            body = json.loads(record['body'])
+            request_data = json.loads(body['responsePayload'])
+            logger.info(f"Request_data: {request_data}")
+            logger.info("Intensity: "
+                        f"{request_data['data'][0]['intensity']['actual']}")
+    except Exception as e:
+        logger.error(e)
+        logger.info("Data extraction failed.")
 
     try:
         cursor.execute("INSERT INTO thetime VALUES (default, %s)",
