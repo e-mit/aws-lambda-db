@@ -3,6 +3,9 @@
 
 # Run this script with one of the following input arguments:
 entryFuncs=("clean" "stack" "update_function" "update_layer")
+# Additionally: "stack" has an optional 2nd argument, which is a
+# space-separated list of parameter-overrides to pass to
+# cloudformation deploy, to become template parameters.
 
 ID_FILE_NAME="id.txt"
 
@@ -79,6 +82,7 @@ except:
 
 _prepare_packages() {
     _delete_files
+    source venv/bin/activate
     pip3 install --target package/python -r requirements.txt &> /dev/null
 }
 
@@ -97,7 +101,7 @@ stack() {
     --template-file out.yml \
     --stack-name $STACK_NAME \
     --capabilities CAPABILITY_NAMED_IAM \
-    --parameter-overrides functionName=$FUNCTION_NAME
+    --parameter-overrides functionName=$FUNCTION_NAME $2
 
     echo Deleting the temporary S3 bucket
     aws s3 rb --force s3://$BUCKET_NAME

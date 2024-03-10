@@ -1,3 +1,6 @@
 venv
 package
 *.zip
+config.sh
+out.yml
+id.txt
