@@ -1,0 +1,11 @@
+{ 
+  "data":[{ 
+    "from": "2024-03-11T15:30Z",
+    "to": "2024-03-11T16:00Z",
+    "intensity": {
+      "forecast": 247,
+      "actual": 242,
+      "index": "high"
+    }
+  }]
+}

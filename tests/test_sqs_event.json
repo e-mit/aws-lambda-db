@@ -1,0 +1,21 @@
+{
+    "Records": [
+        {
+            "messageId": "825495f7-6822-4884-92cf-528f9c9bed27",
+            "receiptHandle": "AQEBYKj5YCrroc3x7qXUuaKhvLBwEzanoMliY/l3VdABv3abzYTBGQDu3h48gZI/lAh+BArDg9EzVQEXBMY1A9bUYbp9UjywnlwNx1z7JWBI60zF3dEgxjnI18Z78QOmZejGQHH7K/xv/fHDS4uAWHUsu0VBfFnqbYw9jesWbDoV1aqun/Xc9Sqir5C2lfRyjRWkY4eJszeydA59hcdPIiDiBm2MKexV9cY+cUE0PwqECJa9sePxNUC/P9rXiALcIysqwjzTP1ptbpasNR4M5UzYvzXqDV7V6MSK7nDwbqV46uCdnlX2cfgDCP00ngR3CQGgV2kPHCv7Zjm95oRhGkblWKvnzyblIPx/1SN66q2tCzCqzLGTHgJJehWwgVQohgfe5lMELf4ZocxmT1dI2FTwYbUH+Pi3CekcUGoc3HngUoI=",
+            "body": "{\"version\":\"1.0\",\"timestamp\":\"2024-03-11T19:12:46.272Z\",\"requestContext\":{\"requestId\":\"0a65ef57-8d85-49e3-98ea-62d0f3c7bde9\",\"functionArn\":\"arn:aws:lambda:eu-west-2:637423608549:function:testgetFunction26b1da:$LATEST\",\"condition\":\"Success\",\"approximateInvokeCount\":1},\"requestPayload\":{\"version\":\"0\",\"id\":\"0a65ef57-8d85-49e3-98ea-62d0f3c7bde9\",\"detail-type\":\"Scheduled Event\",\"source\":\"aws.scheduler\",\"account\":\"637423608549\",\"time\":\"2024-03-11T19:12:13Z\",\"region\":\"eu-west-2\",\"resources\":[\"arn:aws:scheduler:eu-west-2:637423608549:schedule/default/testgetFunction26b1da-schedule\"],\"detail\":\"{}\"},\"responseContext\":{\"statusCode\":200,\"executedVersion\":\"$LATEST\"},\"responsePayload\":{\"data\": [{\"from\": \"2024-03-11T18:30Z\", \"to\": \"2024-03-11T19:00Z\", \"intensity\": {\"forecast\": 254, \"actual\": 259, \"index\": \"high\"}}]}}",
+            "attributes": {
+                "ApproximateReceiveCount": "1",
+                "AWSTraceHeader": "Root=1-65ef57ad-77dbfc92045fd7f32a1d884d;Parent=60ea0a9ddcc2fcb9;Sampled=0;Lineage=4437ee79:0",
+                "SentTimestamp": "1710184366287",
+                "SenderId": "AROAZI2LIMLS4FNYPKSOF:awslambda_707_20240311182046317",
+                "ApproximateFirstReceiveTimestamp": "1710184366288"
+            },
+            "messageAttributes": {},
+            "md5OfBody": "4228cac53ab0b6ef4401dd5e05996b45",
+            "eventSource": "aws:sqs",
+            "eventSourceARN": "arn:aws:sqs:eu-west-2:637423608549:test1Stackddfa8b-queue-Cmn2pmetTKtl",
+            "awsRegion": "eu-west-2"
+        }
+    ]
+}
