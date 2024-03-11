@@ -3,9 +3,10 @@
 
 # Run this script with one of the following input arguments:
 entryFuncs=("clean" "stack" "update_function" "update_layer")
+
 # Additionally: "stack" has an optional 2nd argument, which is a
 # space-separated list of parameter-overrides to pass to
-# cloudformation deploy, to become template parameters.
+# cloudformation deploy, which become template parameters.
 
 ID_FILE_NAME="id.txt"
 
@@ -102,7 +103,6 @@ stack() {
     --s3-bucket $BUCKET_NAME \
     --output-template-file out.yml &> /dev/null
 
-    echo "Using: --parameter-overrides functionName=$FUNCTION_NAME $EXTRA_PARAM_OVERRIDES"
     aws cloudformation deploy \
     --template-file out.yml \
     --stack-name $STACK_NAME \
