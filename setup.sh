@@ -7,6 +7,8 @@ NAME_PREFIX=test1
 SEC_GRP_NAME="lambda-rds-1"
 RDS_INSTANCE_NAME=testdbi
 
+LOG_LEVEL="DEBUG"
+
 ####################################################
 
 source config.sh
@@ -42,5 +44,6 @@ echo "Created queue: $QUEUE_NAME"
 aws lambda update-function-configuration \
 --function-name $FUNCTION_NAME \
 --environment "Variables={DB_PORT=$DB_PORT, \
-DB_USER=$DB_USER,DB_NAME=$DB_NAME, \
-DB_HOST=$DB_HOST,DB_PASSWORD=$DB_PASSWORD}"
+DB_USER=$DB_USER, DB_NAME=$DB_NAME, \
+DB_HOST=$DB_HOST, DB_PASSWORD=$DB_PASSWORD, \
+LOG_LEVEL=$LOG_LEVEL}"
