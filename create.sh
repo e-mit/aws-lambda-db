@@ -16,7 +16,7 @@ EXTRA_PARAM_OVERRIDES=$2
 
 if [[ -z $NAME_PREFIX ]]; then
     echo ERROR: Please set NAME_PREFIX
-    exit 1
+    return 1
 else
     # Convert to lower-case
     NAME_PREFIX_LOWER="$(echo $NAME_PREFIX | tr '[A-Z]' '[a-z]')"
@@ -33,17 +33,21 @@ _make_names() {
 }
 
 _get_id() {
-    if [ ! -f $ID_FILE_NAME ]; then
-        RAND_ID=$(dd if=/dev/random bs=3 count=1 2>/dev/null \
-		          | od -An -tx1 | tr -d ' \t\n')
-        echo $RAND_ID > $ID_FILE_NAME
-        _make_names
-        echo "Creating $STACK_NAME with Lambda $FUNCTION_NAME"
-    else
+    if [ -f $ID_FILE_NAME ]; then
         RAND_ID=$(cat $ID_FILE_NAME)
         _make_names
         echo "Found $STACK_NAME"
+        return 0
     fi
+    return 1
+}
+
+_make_id() {
+    RAND_ID=$(dd if=/dev/random bs=3 count=1 2>/dev/null \
+                | od -An -tx1 | tr -d ' \t\n')
+    echo $RAND_ID > $ID_FILE_NAME
+    _make_names
+    echo "Creating $STACK_NAME with Lambda $FUNCTION_NAME"
 }
 
 _delete_files() {
@@ -52,33 +56,36 @@ _delete_files() {
 }
 
 clean() {
-    echo "Deleting the stack and its resources (lambda and role)"
-    aws cloudformation delete-stack --stack-name $STACK_NAME
-    echo "Deleted $STACK_NAME"
+    echo "Deleting the stack, resources (lambda and role) and temporary files"
 
-    # Note that the layer(s) are not included in the stack.
-    echo "Delete layer (all versions)"
-    while true; do
-    VERSION=$(aws lambda list-layer-versions \
-    --layer-name $LAYER_NAME | \
-    python3 -c \
+    if _get_id ; then
+        aws cloudformation delete-stack --stack-name $STACK_NAME
+        echo "Deleted $STACK_NAME"
+
+        # Note that the layer(s) are not included in the stack.
+        echo "Delete layer (all versions)"
+        while true; do
+        VERSION=$(aws lambda list-layer-versions \
+        --layer-name $LAYER_NAME | \
+        python3 -c \
 "import sys, json
 try:
     print(json.load(sys.stdin)['LayerVersions'][0]['Version'])
 except:
-    exit(1)"
-    )
-    if [[ "$?" -ne 0 ]]; then
-        break
-    fi
-    echo Deleting layer $LAYER_NAME:$VERSION
-    aws lambda delete-layer-version \
-    --layer-name $LAYER_NAME \
-    --version-number $VERSION
-    done
+    exit(1)")
+        if [[ "$?" -ne 0 ]]; then
+            break
+        fi
+        echo Deleting layer $LAYER_NAME:$VERSION
+        aws lambda delete-layer-version \
+        --layer-name $LAYER_NAME \
+        --version-number $VERSION
+        done
 
-    echo "Delete the log group (was automatically created but is not in the stack)"
-    aws logs delete-log-group --log-group-name /aws/lambda/$FUNCTION_NAME 2> /dev/null
+        echo "Delete the log group (was automatically created but is not in the stack)"
+        aws logs delete-log-group --log-group-name /aws/lambda/$FUNCTION_NAME 2> /dev/null
+    fi
+
     _delete_files
     rm -f $ID_FILE_NAME
 }
@@ -93,6 +100,12 @@ _prepare_packages() {
 }
 
 stack() {
+    if _get_id ; then
+        echo "Error: a stack id file already exists: please rename or clean"
+        return 1
+    fi
+    _make_id
+
     echo Making temporary S3 bucket $BUCKET_NAME
     aws s3 mb s3://$BUCKET_NAME
 
@@ -115,6 +128,11 @@ stack() {
 
 
 update_function() {
+    if ! _get_id ; then
+        echo "No stack id file found."
+        return 1
+    fi
+
     _delete_files
     cd function
     zip -r ../function.zip .
@@ -127,6 +145,11 @@ update_function() {
 
 
 update_layer() {
+    if ! _get_id ; then
+        echo "No stack id file found."
+        return 1
+    fi
+
     _prepare_packages
     cd package
     zip -r ../package.zip . &> /dev/null
@@ -152,7 +175,6 @@ for i in "${entryFuncs[@]}"
 do
     if [ "$i" == "$1" ]; then
         echo "Executing $i()"
-        _get_id
         $i
         ok=1
     fi
