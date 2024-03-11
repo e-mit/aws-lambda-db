@@ -87,6 +87,8 @@ _prepare_packages() {
     /usr/bin/python3 -m venv venv
     source venv/bin/activate
     pip3 install --target package/python -r requirements.txt &> /dev/null
+    pip3 install -r requirements.txt &> /dev/null
+    pip3 install -r test_requirements.txt &> /dev/null
 }
 
 stack() {
