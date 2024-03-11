@@ -35,10 +35,12 @@ print(subnets)")
 source create.sh stack \
 "VPCsecurityGroupID=$SEC_GRP_ID VPCsubnetIDlist=$SUBNETS"
 
+QUEUE_NAME="${FUNCTION_NAME}-queue"
+echo "Created queue: $QUEUE_NAME"
+
 # Add environment variables to the lambda
 aws lambda update-function-configuration \
 --function-name $FUNCTION_NAME \
 --environment "Variables={DB_PORT=$DB_PORT, \
 DB_USER=$DB_USER,DB_NAME=$DB_NAME, \
 DB_HOST=$DB_HOST,DB_PASSWORD=$DB_PASSWORD}"
-
