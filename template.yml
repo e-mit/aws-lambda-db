@@ -6,7 +6,7 @@ Parameters:
     Description: The name of the lambda function
     Type: String
     MinLength: 1
-    MaxLength: 30
+    MaxLength: 100
   VPCsecurityGroupID:
     Description: The ID of the security group in the VPC
     Type: String
@@ -22,7 +22,12 @@ Resources:
 
   queue:
     Type: AWS::SQS::Queue
-    # Standard queue: all defaults are OK
+    Properties:
+      QueueName:
+        !Join
+        - '-'
+        - - !Ref functionName
+          - 'queue'
 
   function:
     Type: AWS::Serverless::Function
