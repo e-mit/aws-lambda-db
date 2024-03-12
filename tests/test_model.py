@@ -15,7 +15,7 @@ class TestModel(unittest.TestCase):
         data_object = model.validate_json(payload_txt)
         self.assertEqual(len(data_object.data), 1)
         self.assertEqual(data_object.data[0].intensity.actual, 242)
-        self.assertEqual(data_object.data[0].intensity.index, 'high')
+        self.assertEqual(data_object.data[0].intensity.rating, 'high')
 
     def test_model_dict(self):
         with open('tests/test_api_response.txt', 'r') as file:
@@ -23,7 +23,7 @@ class TestModel(unittest.TestCase):
         data_object = model.validate_dict(json.loads(payload_txt))
         self.assertEqual(len(data_object.data), 1)
         self.assertEqual(data_object.data[0].intensity.actual, 242)
-        self.assertEqual(data_object.data[0].intensity.index, 'high')
+        self.assertEqual(data_object.data[0].intensity.rating, 'high')
 
 
 if __name__ == '__main__':

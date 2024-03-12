@@ -8,7 +8,9 @@ from pydantic import BaseModel, Field
 
 
 class CarbonIntensity(BaseModel):
-    index: Literal['very low', 'low', 'moderate', 'high', 'very high']
+    rating: Literal[
+        'very low', 'low', 'moderate', 'high', 'very high'] = Field(
+            validation_alias='index')
     forecast: int
     actual: int
 
