@@ -30,4 +30,4 @@ def validate_json(api_response_txt: str) -> CarbonIntensityResponse:
 
 
 def validate_dict(api_response: dict) -> CarbonIntensityResponse:
-    return CarbonIntensityResponse(**api_response)
+    return CarbonIntensityResponse.model_validate(api_response)
