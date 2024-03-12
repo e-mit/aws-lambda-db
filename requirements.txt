@@ -1,2 +1,4 @@
 psycopg2-binary==2.9.9
 pydantic==2.6.3
+SQLAlchemy==2.0.28
+sqlmodel==0.0.16

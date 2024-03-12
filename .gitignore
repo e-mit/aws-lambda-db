@@ -6,3 +6,4 @@ out.yml
 id.txt
 function/__pycache__
 tests/__pycache__
+*.db
