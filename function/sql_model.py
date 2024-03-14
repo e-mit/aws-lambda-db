@@ -18,7 +18,7 @@ def validate_rating(rating: str) -> str:
     return rating
 
 
-class CarbonIntensity(SQLModel):
+class CarbonIntensityRecord(SQLModel):
     """This is a pydantic class for data validation."""
     rating: Annotated[str, AfterValidator(validate_rating)]
     forecast: int
@@ -36,27 +36,41 @@ class CarbonIntensity(SQLModel):
                    time=midpoint)
 
 
-class CarbonIntensityTable(CarbonIntensity, table=True):
+class CarbonIntensityTable(CarbonIntensityRecord, table=True):
     """This is used as the database interface (does not perform validation)."""
-    __tablename__: str = CarbonIntensity.__tablename__  # type: ignore
+    __tablename__: str = CarbonIntensityRecord.__tablename__  # type: ignore
     id: Optional[int] = Field(default=None, primary_key=True)
 
     @classmethod
-    def _create_table_item_from_model(cls, entry: CarbonIntensity) -> Self:
+    def _create_table_item_from_model(cls,
+                                      entry: CarbonIntensityRecord) -> Self:
         return cls(**{k: getattr(entry, k) for k in entry.model_fields})
 
     @classmethod
-    def _create_model_from_table_item(cls, item: Self) -> CarbonIntensity:
-        return CarbonIntensity(
+    def _create_model_from_table_item(cls,
+                                      item: Self) -> CarbonIntensityRecord:
+        return CarbonIntensityRecord(
             **{k: getattr(item, k) for k in item.model_fields})
 
     @classmethod
-    def add_from_db_model(cls, engine: Engine, entry: CarbonIntensity) -> None:
-        """Use an object that is validated to match the database schema."""
-        item = cls._create_table_item_from_model(entry)
+    def _add(cls, engine: Engine, item: Self) -> None:
         with Session(engine) as session:
             session.add(item)
             session.commit()
+
+    @classmethod
+    def add_from_db_model(cls, engine: Engine,
+                          entry: CarbonIntensityRecord) -> None:
+        """Use an object that was validated to match the database schema."""
+        item = cls._create_table_item_from_model(entry)
+        cls._add(engine, item)
+
+    @classmethod
+    def add_from_source_model(cls, engine: Engine,
+                              source_data: model.CarbonIntensityData) -> None:
+        """Use an object that was validated to match the source API."""
+        item = CarbonIntensityRecord.from_source_model(source_data)
+        cls.add_from_db_model(engine, item)
 
     @overload
     @classmethod
@@ -76,12 +90,13 @@ class CarbonIntensityTable(CarbonIntensity, table=True):
 
     @classmethod
     def read_all(cls, engine: Engine,
-                 statement: SelectOfScalar[Self]) -> list[CarbonIntensity]:
+                 statement: SelectOfScalar[Self]
+                 ) -> list[CarbonIntensityRecord]:
         return [cls._create_model_from_table_item(x) for x in
                 cls._read(engine, 'all', statement)]
 
     @classmethod
     def read_first(cls, engine: Engine,
-                   statement: SelectOfScalar[Self]) -> CarbonIntensity:
+                   statement: SelectOfScalar[Self]) -> CarbonIntensityRecord:
         return cls._create_model_from_table_item(
                         cls._read(engine, 'first', statement))
