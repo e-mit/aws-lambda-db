@@ -7,7 +7,7 @@ import sys
 from datetime import datetime
 import os
 
-from sqlmodel import select
+from sqlmodel import select, create_engine, SQLModel
 import pydantic
 
 sys.path.append("function")
@@ -76,6 +76,8 @@ class TestCarbonIntensityTable(unittest.TestCase):
 
     def setUp(self) -> None:
         self.sqlite = SQLiteHelper()
+        self.engine = create_engine(f"sqlite:///{self.sqlite.dbname}")
+        SQLModel.metadata.create_all(self.engine)
 
     def test_table_exists(self):
         table_names = self.sqlite.get_table_names()
@@ -94,7 +96,7 @@ class TestCarbonIntensityTable(unittest.TestCase):
 
     def test_add_from_db_model(self):
         carb = sql_model.CarbonIntensityRecord(**TEST_ARGS)  # type: ignore
-        sql_model.CarbonIntensityTable.add_from_db_model(self.sqlite.engine,
+        sql_model.CarbonIntensityTable.add_from_db_model(self.engine,
                                                          carb)
 
         self.assertEqual(self.sqlite.get_table_length(
@@ -116,11 +118,11 @@ class TestCarbonIntensityTable(unittest.TestCase):
         """Add multiple entries, then read back to check."""
         c1 = sql_model.CarbonIntensityRecord(rating='very high', forecast=0,
                                              actual=999, time=datetime.now())
-        sql_model.CarbonIntensityTable.add_from_db_model(self.sqlite.engine,
+        sql_model.CarbonIntensityTable.add_from_db_model(self.engine,
                                                          c1)
         c2 = sql_model.CarbonIntensityRecord(rating='low', forecast=-10,
                                              actual=2, time=datetime.now())
-        sql_model.CarbonIntensityTable.add_from_db_model(self.sqlite.engine,
+        sql_model.CarbonIntensityTable.add_from_db_model(self.engine,
                                                          c2)
 
         self.assertEqual(self.sqlite.get_table_length(
@@ -128,14 +130,14 @@ class TestCarbonIntensityTable(unittest.TestCase):
 
         statement = select(sql_model.CarbonIntensityTable).where(
                 sql_model.CarbonIntensityTable.rating == "low")
-        results = sql_model.CarbonIntensityTable.read_all(self.sqlite.engine,
+        results = sql_model.CarbonIntensityTable.read_all(self.engine,
                                                           statement)
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], c2)
 
         statement = select(sql_model.CarbonIntensityTable).where(
                 sql_model.CarbonIntensityTable.rating == "very high")
-        results = sql_model.CarbonIntensityTable.read_all(self.sqlite.engine,
+        results = sql_model.CarbonIntensityTable.read_all(self.engine,
                                                           statement)
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], c1)
@@ -144,11 +146,11 @@ class TestCarbonIntensityTable(unittest.TestCase):
         """Add multiple entries, then read back to check."""
         c1 = sql_model.CarbonIntensityRecord(rating='very high', forecast=0,
                                              actual=999, time=datetime.now())
-        sql_model.CarbonIntensityTable.add_from_db_model(self.sqlite.engine,
+        sql_model.CarbonIntensityTable.add_from_db_model(self.engine,
                                                          c1)
         c2 = sql_model.CarbonIntensityRecord(rating='low', forecast=-10,
                                              actual=2, time=datetime.now())
-        sql_model.CarbonIntensityTable.add_from_db_model(self.sqlite.engine,
+        sql_model.CarbonIntensityTable.add_from_db_model(self.engine,
                                                          c2)
 
         self.assertEqual(self.sqlite.get_table_length(
@@ -156,19 +158,20 @@ class TestCarbonIntensityTable(unittest.TestCase):
 
         statement = select(sql_model.CarbonIntensityTable).where(
                 sql_model.CarbonIntensityTable.rating == "low")
-        results = sql_model.CarbonIntensityTable.read_first(self.sqlite.engine,
+        results = sql_model.CarbonIntensityTable.read_first(self.engine,
                                                             statement)
         self.assertEqual(results, c2)
 
         statement = select(sql_model.CarbonIntensityTable).where(
                 sql_model.CarbonIntensityTable.rating == "very high")
-        results = sql_model.CarbonIntensityTable.read_first(self.sqlite.engine,
+        results = sql_model.CarbonIntensityTable.read_first(self.engine,
                                                             statement)
         self.assertEqual(results, c1)
 
     def tearDown(self) -> None:
         if os.getenv('STEP_TESTS', None):
-            print('\nFinished test: ', unittest.TestCase.id(self))
+            print()
+            print(f'Finished test: {unittest.TestCase.id(self)}')
             input("Press Enter to tear down...")
         self.sqlite.tearDown()
         return super().tearDown()
