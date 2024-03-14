@@ -2,6 +2,7 @@ venv
 package
 *.zip
 config.sh
+test_config.sh
 out.yml
 id.txt
 function/__pycache__
