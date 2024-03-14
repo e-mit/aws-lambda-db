@@ -12,8 +12,8 @@ import pydantic
 
 sys.path.append("function")
 
-from function import sql_model, model  # noqa
-from sqlite_helper import SQLiteHelper  # noqa
+from function import sql_model, source_model  # noqa
+from sql_helper import SQLiteHelper  # noqa
 
 
 TEST_ARGS = dict(rating="high", forecast=10,
@@ -63,7 +63,7 @@ class TestCarbonIntensity(unittest.TestCase):
     def test_from_source_model(self):
         with open('tests/test_api_response.txt', 'r') as file:
             payload_txt = file.read()
-        source_data = model.validate_json(payload_txt).data[0]
+        source_data = source_model.validate_json(payload_txt).data[0]
         db_obj = sql_model.CarbonIntensityRecord.from_source_model(source_data)
         self.assertEqual(db_obj.actual, 242)
         self.assertEqual(db_obj.forecast, 247)

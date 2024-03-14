@@ -4,7 +4,7 @@ import logging
 from sqlalchemy import Engine, URL
 from sqlmodel import create_engine
 
-import model
+import source_model
 import sqs_event
 from function import sql_model
 
@@ -42,7 +42,7 @@ def create_sql_engine(db_name: str, db_user: str | None, db_host: str | None,
 def lambda_processing(event: dict[str, Any], engine: Engine):
     try:
         for payload_dict in sqs_event.extract(event):
-            source_api_data = model.validate_dict(payload_dict)
+            source_api_data = source_model.validate_dict(payload_dict)
             logger.debug(f"Extracted data: {source_api_data}")
             sql_model.CarbonIntensityTable.add_from_source_model(
                 engine, source_api_data.data[0])

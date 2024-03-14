@@ -9,7 +9,7 @@ from sqlmodel import Field, SQLModel, Session
 from sqlmodel.sql.expression import SelectOfScalar
 from sqlalchemy import Engine
 
-import model
+import source_model
 
 
 def validate_rating(rating: str) -> str:
@@ -26,7 +26,9 @@ class CarbonIntensityRecord(SQLModel):
     time: datetime
 
     @classmethod
-    def from_source_model(cls, source_data: model.CarbonIntensityData) -> Self:
+    def from_source_model(cls,
+                          source_data: source_model.CarbonIntensityData
+                          ) -> Self:
         """Convert data obtained from the web API into the desired format."""
         half_dt = (source_data.to_ts - source_data.from_ts)/2
         midpoint = source_data.from_ts + half_dt
@@ -67,7 +69,8 @@ class CarbonIntensityTable(CarbonIntensityRecord, table=True):
 
     @classmethod
     def add_from_source_model(cls, engine: Engine,
-                              source_data: model.CarbonIntensityData) -> None:
+                              source_data: source_model.CarbonIntensityData
+                              ) -> None:
         """Use an object that was validated to match the source API."""
         item = CarbonIntensityRecord.from_source_model(source_data)
         cls.add_from_db_model(engine, item)

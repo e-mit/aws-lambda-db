@@ -13,7 +13,7 @@ logging.getLogger().setLevel("CRITICAL")
 sys.path.append("function")
 
 from function import lambda_processing, sql_model  # noqa
-from sqlite_helper import SQLiteHelper, PSQLHelper, DBhelper  # noqa
+from sql_helper import SQLiteHelper, PSQLHelper, DBhelper  # noqa
 
 
 class TestLambdaProcessing(unittest.TestCase):
