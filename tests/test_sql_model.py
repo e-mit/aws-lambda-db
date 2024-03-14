@@ -16,7 +16,7 @@ import pydantic
 
 sys.path.append("function")
 
-from function import sql_model  # noqa
+from function import sql_model, model  # noqa
 
 TEST_ARGS = dict(rating="high", forecast=10,
                  actual=400, time=datetime.now())
@@ -60,6 +60,17 @@ class TestCarbonIntensity(unittest.TestCase):
         self.assertIsInstance(carb.actual, int)
         self.assertEqual(carb.forecast, 10)
         self.assertIsInstance(carb.forecast, int)
+
+    def test_from_source_model(self):
+        with open('tests/test_api_response.txt', 'r') as file:
+            payload_txt = file.read()
+        source_data = model.validate_json(payload_txt).data[0]
+        db_obj = sql_model.CarbonIntensity.from_source_model(source_data)
+        self.assertEqual(db_obj.actual, 242)
+        self.assertEqual(db_obj.forecast, 247)
+        self.assertEqual(db_obj.rating, 'high')
+        expected_time = datetime.fromisoformat("2024-03-11T15:45:00+00:00")
+        self.assertEqual(db_obj.time, expected_time)
 
 
 class TestCarbonIntensityTable(unittest.TestCase):
