@@ -1,3 +1,9 @@
+"""Pydantic model for validating AWS SQS event data input to Lambda.
+
+This allows easy extraction of the 'responsePayload' field from the
+event data, which is the (json) data originally enqueued in the SQS.
+"""
+
 from typing import Any, Iterator
 from datetime import datetime
 from typing import Literal, Annotated
@@ -33,7 +39,7 @@ class SQSEvent(BaseModel):
 
 
 def extract(event: dict[str, Any]) -> Iterator[dict]:
-    """Obtain the dict that was placed into the AWS SQS queue.
+    """Obtain the dict that was originally enqueued in the SQS.
 
     Iterate over all messages in the event.
     """

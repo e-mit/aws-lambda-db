@@ -22,12 +22,15 @@ class CarbonIntensityData(BaseModel):
 
 
 class CarbonIntensityResponse(BaseModel):
+    """The REST API produces a json string corresponding to this class."""
     data: Annotated[list[CarbonIntensityData], Len(min_length=1, max_length=1)]
 
 
 def validate_json(api_response_txt: str) -> CarbonIntensityResponse:
+    """Create a validated model object from a json string."""
     return CarbonIntensityResponse.model_validate_json(api_response_txt)
 
 
 def validate_dict(api_response: dict) -> CarbonIntensityResponse:
+    """Create a validated model object from a dictionary."""
     return CarbonIntensityResponse.model_validate(api_response)
