@@ -120,31 +120,21 @@ class TestCreateSQLEngineSQLite(TestLambdaProcessing):
 class TestCreateSQLEnginePSQL(TestLambdaProcessing):
     """This uses the engine creation function and Postgresql."""
 
-    def setUp(self) -> None:
-        try:
-            self.user = os.environ['TEST_DB_USER']
-            self.dbname = os.environ['TEST_DB_NAME']
-            self.host = os.getenv('TEST_DB_HOST', None)
-            self.port = os.getenv('TEST_DB_PORT', None)
-            self.password = os.getenv('TEST_DB_PASSWORD', None)
-            self.dialect_driver = os.getenv('TEST_DB_DIALECT_DRIVER',
-                                            'postgresql+psycopg2')
-        except KeyError:
-            print()
-            print("TEST_DB_* parameter(s) not set: skipping test")
-            self.skipTest("skip")
-        super().setUp()
-
     def make_engine(self) -> Engine:
-        return lambda_processing.create_sql_engine(self.dbname, self.user,
-                                                   self.host, self.port,
-                                                   self.password,
-                                                   self.dialect_driver)
+        return lambda_processing.create_sql_engine(
+            self.db.dbname, self.db.user, self.db.host, self.db.port,
+            self.db.password, self.db.dialect_driver)
 
     def prepare_database(self) -> PSQLHelper:
-        kw = {k: getattr(self, k) for k in
-              ['dbname', 'user', 'host', 'port', 'password']}
-        return PSQLHelper(**kw)
+        """This causes the test to skip if the DB params are not provided."""
+        try:
+            db = PSQLHelper()
+        except KeyError:
+            print()
+            print(f"{type(self).__name__}: "
+                  "TEST_DB_* parameter(s) not set: skipping test")
+            self.skipTest("skip")
+        return db
 
 
 if __name__ == '__main__':

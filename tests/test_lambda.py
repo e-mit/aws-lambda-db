@@ -5,8 +5,7 @@ import json
 import importlib
 from typing import Any
 
-from sqlmodel import select, create_engine, SQLModel
-from sqlalchemy import Engine
+from sqlmodel import select
 import pydantic
 
 
@@ -26,12 +25,17 @@ from sql_helper import SQLiteHelper, PSQLHelper, DBhelper  # noqa
 from function import sql_model  # noqa
 
 
-class TestFunctionSQLite(unittest.TestCase):
+class TestFunctionSQL(unittest.TestCase):
+
+    def get_db(self) -> DBhelper:
+        print()
+        print(f"Skipping test of abstract class {type(self).__name__}.")
+        self.skipTest("ABC")
 
     def setUp(self) -> None:
         with open('tests/test_sqs_event.json') as file:
             self.test_event: dict[str, Any] = json.load(file)
-        self.db = SQLiteHelper()
+        self.db = self.get_db()
         self.db.set_environment_variables()
         # reimport the module to apply new environment variables:
         importlib.reload(lambda_function)
@@ -81,6 +85,26 @@ class TestFunctionSQLite(unittest.TestCase):
         with self.assertRaises(pydantic.ValidationError):
             bad_event_data = {"Records": "no"}
             lambda_function.lambda_handler(bad_event_data, self.test_context)
+
+
+class TestFunctionSQLite(TestFunctionSQL):
+
+    def get_db(self) -> DBhelper:
+        return SQLiteHelper()
+
+
+class TestFunctionPSQL(TestFunctionSQL):
+
+    def get_db(self) -> DBhelper:
+        """This causes the test to skip if the DB params are not provided."""
+        try:
+            db = PSQLHelper()
+        except KeyError:
+            print()
+            print(f"{type(self).__name__}: "
+                  "TEST_DB_* parameter(s) not set: skipping test")
+            self.skipTest("skip")
+        return db
 
 
 if __name__ == '__main__':
