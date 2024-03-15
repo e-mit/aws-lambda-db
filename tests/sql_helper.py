@@ -1,14 +1,18 @@
+"""Classes to assist in creating temporary databases for tests."""
+
 from pathlib import Path
 import tempfile
 import sqlite3
 from typing import Any
 from abc import ABC, abstractmethod
+import os
 
 import psycopg2
 from psycopg2 import sql
 
 
 class DBhelper(ABC):
+    """Do simple CRUD operations on an undefined SQL database."""
 
     @abstractmethod
     def connect(self, **kwargs) -> Any:
@@ -44,8 +48,13 @@ class DBhelper(ABC):
     def tearDown(self) -> None:
         self.conn.close()
 
+    @abstractmethod
+    def set_environment_variables(self) -> None:
+        ...
+
 
 class SQLiteHelper(DBhelper):
+    """Create a SQLite database for CRUD, then delete the whole database."""
 
     def connect(self, **kwargs) -> sqlite3.Connection:
         return sqlite3.connect(self.dbname)
@@ -65,8 +74,17 @@ class SQLiteHelper(DBhelper):
         super().tearDown()
         self.temp_dir.cleanup()
 
+    def set_environment_variables(self):
+        os.environ['DB_USER'] = ''
+        os.environ['DB_NAME'] = self.dbname
+        os.environ['DB_PASSWORD'] = ''
+        os.environ['DB_HOST'] = ''
+        os.environ['DB_PORT'] = ''
+        os.environ['DB_DIALECT_DRIVER'] = 'sqlite'
+
 
 class PSQLHelper(DBhelper):
+    """Connect to an existing postgres database, drop all its tables."""
 
     def connect(self, **kwargs):
         return psycopg2.connect(**kwargs)
@@ -94,3 +112,6 @@ class PSQLHelper(DBhelper):
         """Delete all tables but leave the database."""
         self.drop_tables()
         super().tearDown()
+
+    def set_environment_variables(self) -> None:
+        ...  # TODO
