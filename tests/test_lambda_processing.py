@@ -17,9 +17,11 @@ from sql_helper import SQLiteHelper, PSQLHelper, DBhelper  # noqa
 
 
 class TestLambdaProcessing(unittest.TestCase):
+    """An abstract base class that sets up a database and runs tests."""
 
     def make_engine(self) -> Engine:
         """Create the SQLAlchemy engine."""
+        # NOTE: cannot use ABC module due to unittest incompatibility
         raise NotImplementedError("ABC")
 
     def prepare_database(self) -> DBhelper:
@@ -33,6 +35,7 @@ class TestLambdaProcessing(unittest.TestCase):
             return json.load(file)
 
     def setUp(self) -> None:
+        """Obtain an empty database and process a test event."""
         self.test_event = self.get_test_event_data()
         self.db = self.prepare_database()
         self.engine = self.make_engine()
@@ -42,15 +45,15 @@ class TestLambdaProcessing(unittest.TestCase):
         return super().setUp()
 
     def test_table_exists(self):
+        """There should be exactly one table in the database."""
         table_names = self.db.get_table_names()
         self.assertEqual(len(table_names), 1)
         self.assertEqual(table_names[0],
                          sql_model.CarbonIntensityRecord.__tablename__)
 
     def test_read(self):
-        """Read back data to check."""
-        statement = select(sql_model.CarbonIntensityTable).where(
-                sql_model.CarbonIntensityTable.rating == "high")
+        """There should be one record in the table: read back and check."""
+        statement = select(sql_model.CarbonIntensityTable)
         results = sql_model.CarbonIntensityTable.read_all(self.engine,
                                                           statement)
         self.assertEqual(len(results), 1)
@@ -59,13 +62,12 @@ class TestLambdaProcessing(unittest.TestCase):
         self.assertEqual(results[0].rating, 'high')
 
     def test_call_multiple(self):
-        """Add multiple entries, then read back to check."""
+        """Add two entries, then read back to check."""
         lambda_processing.lambda_processing(self.test_event,
                                             self.engine)
         table_names = self.db.get_table_names()
         self.assertEqual(len(table_names), 1)
-        statement = select(sql_model.CarbonIntensityTable).where(
-                        sql_model.CarbonIntensityTable.rating == "high")
+        statement = select(sql_model.CarbonIntensityTable)
         results = sql_model.CarbonIntensityTable.read_all(self.engine,
                                                           statement)
         self.assertEqual(len(results), 2)
