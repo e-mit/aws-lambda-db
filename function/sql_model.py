@@ -10,6 +10,7 @@ from sqlmodel.sql.expression import SelectOfScalar
 from sqlalchemy import Engine
 
 import source_model
+import sql_model_base
 
 
 def validate_rating(rating: str) -> str:
@@ -18,8 +19,9 @@ def validate_rating(rating: str) -> str:
     return rating
 
 
-class CarbonIntensityRecord(SQLModel):
-    """This is a pydantic class for data validation."""
+class CarbonIntensityRecord(
+        sql_model_base.DataModel[source_model.CarbonIntensityData]):
+    """This is a pydantic/sqlmodel class for database data validation."""
     rating: Annotated[str, AfterValidator(validate_rating)]
     forecast: int
     actual: int
@@ -29,7 +31,7 @@ class CarbonIntensityRecord(SQLModel):
     def from_source_model(cls,
                           source_data: source_model.CarbonIntensityData
                           ) -> Self:
-        """Convert data obtained from the web API into the desired format."""
+        """Convert data from the source API into the desired db format."""
         half_dt = (source_data.to_ts - source_data.from_ts)/2
         midpoint = source_data.from_ts + half_dt
         return cls(forecast=source_data.intensity.forecast,
