@@ -12,7 +12,8 @@ import pydantic
 logging.getLogger().setLevel("CRITICAL")
 sys.path.append("function")
 
-from function import lambda_processing, sql_model  # noqa
+import lambda_processing  # type: ignore # noqa
+import sql_model  # type: ignore # noqa
 from sql_helper import SQLiteHelper, PSQLHelper, DBhelper  # noqa
 
 

@@ -6,7 +6,7 @@ from sqlmodel import create_engine
 
 import source_model
 import sqs_event
-from function import sql_model
+import sql_model
 
 logger = logging.getLogger()
 

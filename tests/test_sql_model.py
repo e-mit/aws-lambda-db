@@ -12,7 +12,8 @@ import pydantic
 
 sys.path.append("function")
 
-from function import sql_model, source_model  # noqa
+import sql_model  # type: ignore # noqa
+import source_model  # type: ignore # noqa
 from sql_helper import SQLiteHelper  # noqa
 
 

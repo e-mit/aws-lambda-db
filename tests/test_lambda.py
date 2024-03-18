@@ -20,9 +20,9 @@ os.environ['DB_DIALECT_DRIVER'] = 'sqlite'
 
 
 sys.path.append("function")
-from function import lambda_function  # noqa
+import lambda_function  # type: ignore # noqa
 from sql_helper import SQLiteHelper, PSQLHelper, DBhelper  # noqa
-from function import sql_model  # noqa
+import sql_model  # type: ignore # noqa
 
 
 class TestFunctionSQL(unittest.TestCase):
