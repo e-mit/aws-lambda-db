@@ -1,13 +1,7 @@
 #!/bin/bash
 
-# Name prefix for the resources to be created:
-NAME_PREFIX=test1
-
-# Security group in the DB's VPC to use:
-SEC_GRP_NAME="lambda-rds-1"
-RDS_INSTANCE_NAME=testdbi
-
-LOG_LEVEL="DEBUG"
+# Create a stack instance according to the parameters supplied in the
+# environment variables. For an example configuration, see config.sh
 
 ####################################################
 
@@ -46,4 +40,4 @@ aws lambda update-function-configuration \
 --environment "Variables={DB_PORT=$DB_PORT, \
 DB_USER=$DB_USER, DB_NAME=$DB_NAME, \
 DB_HOST=$DB_HOST, DB_PASSWORD=$DB_PASSWORD, \
-LOG_LEVEL=$LOG_LEVEL, DB_DIALECT_DRIVER=$DB_DIALECT_DRIVER}"
+LOG_LEVEL=$LOG_LEVEL, DB_DIALECT_DRIVER=$DB_DIALECT_DRIVER}" &> /dev/null
