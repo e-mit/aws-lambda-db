@@ -46,4 +46,4 @@ aws lambda update-function-configuration \
 --environment "Variables={DB_PORT=$DB_PORT, \
 DB_USER=$DB_USER, DB_NAME=$DB_NAME, \
 DB_HOST=$DB_HOST, DB_PASSWORD=$DB_PASSWORD, \
-LOG_LEVEL=$LOG_LEVEL}"
+LOG_LEVEL=$LOG_LEVEL, DB_DIALECT_DRIVER=$DB_DIALECT_DRIVER}"
