@@ -48,6 +48,7 @@ def lambda_processing(event: dict[str, Any], engine: Engine):
                 engine, source_api_data.data[0])
 
     except Exception as e:
+        logger.error("Event data extraction failed.")
         logger.error(e)
-        logger.info("Event data extraction failed.")
+        logger.error(f'Event: {event}')
         raise e
