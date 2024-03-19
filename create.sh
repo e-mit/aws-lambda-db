@@ -1,11 +1,13 @@
 #!/bin/bash
 # Version 1.0.0
 
+# A script to create an AWS Lambda function within a Cloudformation stack.
+
 # Run this script with one of the following input arguments:
 entryFuncs=("clean" "stack" "update_function" "update_layer" "loglevel")
 
 # Additional arguments:
-#   "stack": Optional 2nd argument, which is a space-separated list
+#   "stack": Optional 2nd argument is a space-separated list
 #            of parameter-overrides to pass to cloudformation
 #            deploy, which become template parameters.
 #   "loglevel": Mandatory 2nd argument is a log level string
@@ -178,7 +180,6 @@ update_function() {
         echo Updated Lambda $FUNCTION_NAME
     fi
 }
-
 
 update_layer() {
     if ! _get_id ; then
