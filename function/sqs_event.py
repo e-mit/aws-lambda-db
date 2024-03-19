@@ -4,15 +4,19 @@ This allows easy extraction of the 'responsePayload' field from the
 event data, which is the (json) data originally enqueued in the SQS.
 """
 
-from typing import Any, Iterator
+from typing import Any, Iterator, Literal, Annotated
 from datetime import datetime
-from typing import Literal, Annotated
 from annotated_types import Len
 
 from pydantic import BaseModel, BeforeValidator
 
 
 class SQSRecordBody(BaseModel):
+    """Represents data within the record object.
+
+    The responsePayload is the user-enqueued data.
+    """
+
     version: str
     timestamp: datetime
     requestContext: dict
@@ -22,6 +26,8 @@ class SQSRecordBody(BaseModel):
 
 
 class SQSRecord(BaseModel):
+    """Represents each data record object contained in an SQS event."""
+
     messageId: str
     receiptHandle: str
     body: Annotated[SQSRecordBody,
@@ -35,6 +41,8 @@ class SQSRecord(BaseModel):
 
 
 class SQSEvent(BaseModel):
+    """Represents an event object passed to a lambda from SQS."""
+
     Records: Annotated[list[SQSRecord], Len(min_length=1)]
 
 
