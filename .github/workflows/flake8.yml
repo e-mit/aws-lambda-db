@@ -1,0 +1,12 @@
+name: flake8
+
+on: [push]
+
+jobs:
+  flake8:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Prepare test environment
+      uses: ./.github/actions/prepare-test-environment
+    - name: flake8
+      run: python -m flake8 --exclude=tests/*,venv/*,package/*

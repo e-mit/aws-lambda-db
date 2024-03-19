@@ -1,0 +1,12 @@
+name: pylint
+
+on: [push]
+
+jobs:
+  pylint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Prepare test environment
+      uses: ./.github/actions/prepare-test-environment
+    - name: pylint
+      run: python -m pylint function/*.py

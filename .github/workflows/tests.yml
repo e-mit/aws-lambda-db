@@ -1,0 +1,12 @@
+name: local-tests
+
+on: [push]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Prepare test environment
+      uses: ./.github/actions/prepare-test-environment
+    - name: local-tests
+      run: python -m pytest tests -s

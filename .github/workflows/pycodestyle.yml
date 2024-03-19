@@ -1,0 +1,12 @@
+name: pycodestyle
+
+on: [push]
+
+jobs:
+  pycodestyle:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Prepare test environment
+      uses: ./.github/actions/prepare-test-environment
+    - name: pycodestyle
+      run: python -m pycodestyle function/*.py

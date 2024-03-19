@@ -1,0 +1,12 @@
+name: pydocstyle
+
+on: [push]
+
+jobs:
+  pydocstyle:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Prepare test environment
+      uses: ./.github/actions/prepare-test-environment
+    - name: pydocstyle
+      run: python -m pydocstyle function/*.py --ignore=D107,D203,D213
