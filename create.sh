@@ -2,17 +2,20 @@
 # Version 1.0.0
 
 # Run this script with one of the following input arguments:
-entryFuncs=("clean" "stack" "update_function" "update_layer")
+entryFuncs=("clean" "stack" "update_function" "update_layer" "loglevel")
 
-# Additionally: "stack" has an optional 2nd argument, which is a
-# space-separated list of parameter-overrides to pass to
-# cloudformation deploy, which become template parameters.
+# Additional arguments:
+#   "stack": Optional 2nd argument, which is a space-separated list
+#            of parameter-overrides to pass to cloudformation
+#            deploy, which become template parameters.
+#   "loglevel": Mandatory 2nd argument is a log level string
+#               e.g. INFO, DEBUG, ERROR, etc.
 
 ID_FILE_NAME="id.txt"
 
 ############################################################
 
-EXTRA_PARAM_OVERRIDES=$2
+ARG2=$2
 
 if [[ -z $NAME_PREFIX ]]; then
     echo ERROR: Please set NAME_PREFIX
@@ -60,10 +63,13 @@ clean() {
 
     if _get_id ; then
         aws cloudformation delete-stack --stack-name $STACK_NAME
-        echo "Deleted $STACK_NAME"
+
+        if [[ "$?" -eq 0 ]]; then
+            echo "Deleted $STACK_NAME"
+        fi
 
         # Note that the layer(s) are not included in the stack.
-        echo "Delete layer (all versions)"
+        echo "Deleting layer (all versions)..."
         while true; do
         VERSION=$(aws lambda list-layer-versions \
         --layer-name $LAYER_NAME | \
@@ -120,12 +126,40 @@ stack() {
     --template-file out.yml \
     --stack-name $STACK_NAME \
     --capabilities CAPABILITY_NAMED_IAM \
-    --parameter-overrides functionName=$FUNCTION_NAME $EXTRA_PARAM_OVERRIDES
+    --parameter-overrides functionName=$FUNCTION_NAME $ARG2
 
     echo Deleting the temporary S3 bucket
     aws s3 rb --force s3://$BUCKET_NAME
 }
 
+loglevel() {
+    if ! _get_id ; then
+        echo "No stack id file found."
+        return 1
+    fi
+
+    if [[ -z $ARG2 ]]; then
+        echo "ERROR: log level string is required (INFO, DEBUG, etc.)"
+        return 1
+    fi
+
+    export ARG2
+    ENV_VARS=$(aws lambda get-function-configuration \
+    --function-name $FUNCTION_NAME | \
+    python3 -c \
+    "import sys, json, os
+environment = json.load(sys.stdin)['Environment']
+environment['Variables']['LOG_LEVEL'] = os.environ['ARG2']
+print(json.dumps(environment))")
+
+    aws lambda update-function-configuration \
+    --function-name $FUNCTION_NAME \
+    --environment "$ENV_VARS" &> /dev/null
+
+    if [[ "$?" -eq 0 ]]; then
+        echo "Set log level to $ARG2"
+    fi
+}
 
 update_function() {
     if ! _get_id ; then
@@ -140,7 +174,9 @@ update_function() {
     aws lambda update-function-code \
     --function-name $FUNCTION_NAME \
     --zip-file fileb://function.zip &> /dev/null
-    echo Updated Lambda $FUNCTION_NAME
+    if [[ "$?" -eq 0 ]]; then
+        echo Updated Lambda $FUNCTION_NAME
+    fi
 }
 
 
@@ -165,7 +201,9 @@ update_layer() {
     --function-name $FUNCTION_NAME \
     --layers $LAYER_ARN &> /dev/null
 
-    echo "Created and assigned layer $LAYER_ARN"
+    if [[ "$?" -eq 0 ]]; then
+        echo "Created and assigned layer $LAYER_ARN"
+    fi
 }
 
 ################################################
