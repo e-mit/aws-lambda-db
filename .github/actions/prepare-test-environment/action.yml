@@ -1,5 +1,5 @@
 name: prepare-test-environment
-description: "Checkout, select python version, install packages"
+description: "Select python interpreter version and install packages"
 
 runs:
   using: "composite"
