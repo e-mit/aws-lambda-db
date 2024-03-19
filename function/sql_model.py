@@ -1,9 +1,9 @@
-"""SQL database model for https://api.carbonintensity.org.uk/intensity"""
+"""SQL database model for https://api.carbonintensity.org.uk/intensity data."""
 
 from typing import Annotated
-from typing_extensions import Self
 from datetime import datetime
 
+from typing_extensions import Self
 from pydantic import AfterValidator
 
 import source_model
@@ -13,13 +13,16 @@ import sql_model_base
 
 def validate_rating(rating: str) -> str:
     """Allow only fixed set of values."""
-    assert rating in ['very low', 'low', 'moderate', 'high', 'very high']
+    if rating not in ['very low', 'low', 'moderate', 'high', 'very high']:
+        raise AssertionError("Carbon intensity rating: invalid value.")
     return rating
 
 
+# pylint: disable=R0903
 class CarbonIntensityRecord(
         sql_model_base.DataModel[source_model.CarbonIntensityData]):
-    """This is a pydantic/sqlmodel class for database data validation."""
+    """A pydantic/sqlmodel class for database data validation."""
+
     rating: Annotated[str, AfterValidator(validate_rating)]
     forecast: int
     actual: int
@@ -36,6 +39,7 @@ class CarbonIntensityRecord(
                    actual=source_data.intensity.actual,
                    rating=source_data.intensity.rating,
                    time=midpoint)
+# pylint: enable=R0903
 
 
 class CarbonIntensityTable(
@@ -43,5 +47,6 @@ class CarbonIntensityTable(
         sql_model_base.DataModelTable[
             CarbonIntensityRecord, source_model.CarbonIntensityData],
         table=True):
-    """This is used as the database interface (does not perform validation)."""
+    """Provides the database interface (does not perform validation)."""
+
     id: int | None = sqlmodel.Field(default=None, primary_key=True)

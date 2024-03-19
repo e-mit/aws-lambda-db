@@ -1,9 +1,9 @@
-"""Generic SQL database model for API data"""
+"""Generic SQL database model for API data."""
 
 from typing import Literal, overload, Generic, TypeVar
-from typing_extensions import Self
 from abc import abstractmethod, ABC
 
+from typing_extensions import Self
 from sqlmodel import SQLModel, Session
 from sqlmodel.sql.expression import SelectOfScalar
 from sqlalchemy import Engine
@@ -13,7 +13,7 @@ SourceModelClass = TypeVar("SourceModelClass", bound=pydantic.BaseModel)
 
 
 class DataModel(SQLModel, ABC, Generic[SourceModelClass]):
-    """This is a pydantic class for data validation."""
+    """An abstract pydantic/sqlmodel class for data validation."""
 
     @classmethod
     @abstractmethod
@@ -21,16 +21,17 @@ class DataModel(SQLModel, ABC, Generic[SourceModelClass]):
                           source_data: SourceModelClass
                           ) -> Self:
         """Convert data obtained from the API into the desired db format."""
-        ...
 
 
 DataModelClass = TypeVar("DataModelClass", bound=DataModel)
 
 
+# pylint: disable=E1101,E1133
 class DataModelTable(Generic[DataModelClass, SourceModelClass]):
-    """This is used as the database interface (does not perform validation)."""
+    """Provides the database interface (does not perform validation)."""
 
     def __init_subclass__(cls):
+        """Set the table name using the inherited model name."""
         cls.__tablename__: str = cls.__bases__[0].__tablename__  # type: ignore
 
     @classmethod
@@ -42,7 +43,7 @@ class DataModelTable(Generic[DataModelClass, SourceModelClass]):
     def _create_model_from_table_item(cls,
                                       item: Self) -> DataModelClass:
         return cls.__bases__[0](
-            **{k: getattr(item, k) for k in item.model_fields})
+            **{k: getattr(item, k) for k in item.model_fields})  # type: ignore
 
     @classmethod
     def _add(cls, engine: Engine, item: Self) -> None:
@@ -62,7 +63,7 @@ class DataModelTable(Generic[DataModelClass, SourceModelClass]):
                               source_data: SourceModelClass
                               ) -> None:
         """Use an object that was validated to match the source API."""
-        item = cls.__bases__[0].from_source_model(source_data)
+        item = cls.__bases__[0].from_source_model(source_data)  # type: ignore
         cls.add_from_db_model(engine, item)
 
     @overload
@@ -85,11 +86,14 @@ class DataModelTable(Generic[DataModelClass, SourceModelClass]):
     def read_all(cls, engine: Engine,
                  statement: SelectOfScalar[Self]
                  ) -> list[DataModelClass]:
+        """Obtain all results from the query."""
         return [cls._create_model_from_table_item(x) for x in
                 cls._read(engine, 'all', statement)]
 
     @classmethod
     def read_first(cls, engine: Engine,
                    statement: SelectOfScalar[Self]) -> DataModelClass:
+        """Obtain the first result from the query."""
         return cls._create_model_from_table_item(
                         cls._read(engine, 'first', statement))
+# pylint: enable=E1101,E1133

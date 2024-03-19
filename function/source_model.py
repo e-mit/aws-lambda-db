@@ -1,4 +1,4 @@
-"""Pydantic model for data from https://api.carbonintensity.org.uk/intensity"""
+"""Pydantic model for https://api.carbonintensity.org.uk/intensity data."""
 
 from datetime import datetime
 from typing import Literal, Annotated
@@ -8,6 +8,8 @@ from pydantic import BaseModel, Field
 
 
 class CarbonIntensity(BaseModel):
+    """Sub-object of data contained in the REST API response."""
+
     rating: Literal[
         'very low', 'low', 'moderate', 'high', 'very high'] = Field(
             validation_alias='index')
@@ -16,6 +18,8 @@ class CarbonIntensity(BaseModel):
 
 
 class CarbonIntensityData(BaseModel):
+    """Data object contained in the REST API response."""
+
     from_ts: datetime = Field(validation_alias='from')
     to_ts: datetime = Field(validation_alias='to')
     intensity: CarbonIntensity
@@ -23,6 +27,7 @@ class CarbonIntensityData(BaseModel):
 
 class CarbonIntensityResponse(BaseModel):
     """The REST API produces a json string corresponding to this class."""
+
     data: Annotated[list[CarbonIntensityData], Len(min_length=1, max_length=1)]
 
 
