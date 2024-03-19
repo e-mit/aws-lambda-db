@@ -23,6 +23,7 @@ Resources:
   queue:
     Type: AWS::SQS::Queue
     Properties:
+      MessageRetentionPeriod: 43200
       QueueName:
         !Join
         - '-'
