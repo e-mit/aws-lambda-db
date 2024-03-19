@@ -1,3 +1,5 @@
+"""An AWS Lambda to transfer data from a AWS SQS queue to a database."""
+
 import logging
 import os
 from typing import Any
@@ -9,20 +11,19 @@ import lambda_processing
 logger = logging.getLogger()
 logger.setLevel(os.environ['LOG_LEVEL'])
 
-DB_USER = os.environ['DB_USER']
-DB_NAME = os.environ['DB_NAME']
-DB_PASSWORD = os.environ['DB_PASSWORD']
-DB_HOST = os.environ['DB_HOST']
-DB_PORT = os.environ['DB_PORT']
-DB_DIALECT_DRIVER = os.environ['DB_DIALECT_DRIVER']
-
 logger.info("Connecting to database.")
-engine = lambda_processing.create_sql_engine(DB_NAME, DB_USER, DB_HOST,
-                                             DB_PORT, DB_PASSWORD,
-                                             DB_DIALECT_DRIVER)
+db_settings = lambda_processing.DatabaseSettings(
+    db_user=os.environ['DB_USER'],
+    db_name=os.environ['DB_NAME'],
+    db_password=os.environ['DB_PASSWORD'],
+    db_host=os.environ['DB_HOST'],
+    db_port=os.environ['DB_PORT'],
+    db_dialect_driver=os.environ['DB_DIALECT_DRIVER'])
+engine = db_settings.create_sql_engine()
 SQLModel.metadata.create_all(engine)
 
 
-def lambda_handler(event: dict[str, Any], context: Any) -> None:
-    logger.debug(f'Event: {event}')
+def lambda_handler(event: dict[str, Any], _context_unused: Any) -> None:
+    """Define the lambda function."""
+    logger.debug('Event: %s', event)
     lambda_processing.lambda_processing(event, engine)

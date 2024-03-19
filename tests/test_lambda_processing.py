@@ -104,15 +104,14 @@ class TestCreateSQLEngineSQLite(TestLambdaProcessing):
     """This uses the engine creation function and SQLite."""
 
     def make_engine(self) -> Engine:
-        db_user = None
-        db_name = str(self.db.dbname)
-        db_host = ''
-        db_port = None
-        db_password = None
-        db_dialect_driver = "sqlite"
-        return lambda_processing.create_sql_engine(db_name, db_user, db_host,
-                                                   db_port, db_password,
-                                                   db_dialect_driver)
+        db_settings = lambda_processing.DatabaseSettings(
+            db_user=None,
+            db_name=str(self.db.dbname),
+            db_password=None,
+            db_host='',
+            db_port=None,
+            db_dialect_driver="sqlite")
+        return db_settings.create_sql_engine()
 
     def prepare_database(self) -> SQLiteHelper:
         return SQLiteHelper()
@@ -122,9 +121,14 @@ class TestCreateSQLEnginePSQL(TestLambdaProcessing):
     """This uses the engine creation function and Postgresql."""
 
     def make_engine(self) -> Engine:
-        return lambda_processing.create_sql_engine(
-            self.db.dbname, self.db.user, self.db.host, self.db.port,
-            self.db.password, self.db.dialect_driver)
+        db_settings = lambda_processing.DatabaseSettings(
+            db_user=self.db.user,
+            db_name=self.db.dbname,
+            db_password=self.db.password,
+            db_host=self.db.host,
+            db_port=self.db.port,
+            db_dialect_driver=self.db.dialect_driver)
+        return db_settings.create_sql_engine()
 
     def prepare_database(self) -> PSQLHelper:
         """This causes the test to skip if the DB params are not provided."""
