@@ -9,6 +9,9 @@ NAME_PREFIX=test2
 # Lambda CloudWatch log level
 LOG_LEVEL=DEBUG
 
+# Lambda timeout:
+LAMBDA_TIMEOUT_SEC=10
+
 # The name of the RDS instance to use
 RDS_INSTANCE_NAME=testdbi
 

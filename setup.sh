@@ -29,7 +29,7 @@ print(subnets)")
 
 
 source create.sh stack \
-"VPCsecurityGroupID=$SEC_GRP_ID VPCsubnetIDlist=$SUBNETS"
+"VPCsecurityGroupID=$SEC_GRP_ID VPCsubnetIDlist=$SUBNETS timeout=$LAMBDA_TIMEOUT_SEC"
 
 QUEUE_NAME="${FUNCTION_NAME}-queue"
 echo "Created queue: $QUEUE_NAME"
