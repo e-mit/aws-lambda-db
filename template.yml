@@ -25,6 +25,17 @@ Parameters:
 
 Resources:
 
+  logGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupClass: STANDARD
+      RetentionInDays: 3
+      LogGroupName:
+        !Join
+        - '/'
+        - - 'lambda-log'
+          - !Ref functionName
+
   queue:
     Type: AWS::SQS::Queue
     Properties:
@@ -49,7 +60,7 @@ Resources:
   DLQ:
     Type: AWS::SQS::Queue
     Properties:
-      MessageRetentionPeriod: 604800
+      MessageRetentionPeriod: 432000
       QueueName:
         !Join
         - '-'
@@ -90,6 +101,9 @@ Resources:
         SecurityGroupIds:
           - !Ref VPCsecurityGroupID
         SubnetIds: !Split [",", !Ref VPCsubnetIDlist]
+      LoggingConfig:
+        LogFormat: Text
+        LogGroup: !Ref logGroup
 
   libs:
     Type: AWS::Serverless::LayerVersion

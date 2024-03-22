@@ -89,9 +89,6 @@ except:
         --layer-name $LAYER_NAME \
         --version-number $VERSION
         done
-
-        echo "Delete the log group (was automatically created but is not in the stack)"
-        aws logs delete-log-group --log-group-name /aws/lambda/$FUNCTION_NAME 2> /dev/null
     fi
 
     _delete_files
