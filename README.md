@@ -14,10 +14,12 @@ Creates an AWS Lambda function which receives data from a AWS SQS queue and stor
 
 This project uses Pydantic, SQLAlchemy, SQLModel, psycopg2. AWS is configured with the CLI and CloudFormation/SAM template.
 
-## See also
+
+### See also
 
 - [https://github.com/e-mit/aws-lambda-get](https://github.com/e-mit/aws-lambda-get) creates an AWS Lambda which executes a periodic HTTP GET request of a REST API and puts the resulting data into a SQS queue.
 - [https://github.com/e-mit/aws-create-db](https://github.com/e-mit/aws-create-db) creates and configures an AWS Relational Database Service (RDS) instance running PostgreSQL.
+- [github.com/e-mit/aws-ec2-grafana](https://github.com/e-mit/aws-ec2-grafana) for configuring and deploying Grafana on an EC2 instance to display a public data dashboard
 
 
 ### Readme Contents
