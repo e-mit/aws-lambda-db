@@ -4,10 +4,10 @@
 #########################################################
 
 # Name prefix for the resources to be created
-NAME_PREFIX=test2
+NAME_PREFIX=lambda-db-test5
 
 # Lambda CloudWatch log level
-LOG_LEVEL=DEBUG
+LOG_LEVEL=ERROR
 
 # Lambda timeout:
 LAMBDA_TIMEOUT_SEC=10

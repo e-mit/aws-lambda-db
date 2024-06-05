@@ -2,9 +2,10 @@
 
 from datetime import datetime
 from typing import Literal, Annotated
+from typing_extensions import Self
 from annotated_types import Len
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class CarbonIntensity(BaseModel):
@@ -13,8 +14,19 @@ class CarbonIntensity(BaseModel):
     rating: Literal[
         'very low', 'low', 'moderate', 'high', 'very high'] = Field(
             validation_alias='index')
-    forecast: int
-    actual: int
+    forecast: int | None
+    actual: int | None
+
+    @model_validator(mode='after')
+    def remove_nulls(self) -> Self:
+        """Try to remove nulls from the API data where possible."""
+        if self.actual is None and self.forecast is None:
+            raise ValueError('Both intensities are null.')
+        if self.actual is None:
+            self.actual = self.forecast
+        elif self.forecast is None:
+            self.forecast = self.actual
+        return self
 
 
 class CarbonIntensityData(BaseModel):
